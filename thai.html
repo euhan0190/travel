@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#16243D">
+<title>태국 여행 도우미</title>
+<style>
+:root{
+  --navy:#16243D; --navy-2:#23365A; --blue:#3E6BC4;
+  --white:#FFFFFF; --bg:#F3F5F8; --gray:#8A93A3; --line:#DDE3EB; --ink:#1C2430;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:84px}
+header{background:var(--navy);color:#fff;padding:18px 16px 14px;position:sticky;top:0;z-index:20}
+header h1{font-size:1.1rem;font-weight:800}
+header h1 em{font-style:normal;color:#9FB6E8;font-weight:600;font-size:.85rem;margin-left:6px}
+main{padding:14px 16px}
+/* bottom nav */
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--line);display:flex;z-index:20}
+nav button{flex:1;padding:9px 2px 10px;border:none;background:none;font-size:.68rem;color:var(--gray);cursor:pointer;font-weight:600}
+nav button .ico{display:block;font-size:1.25rem;margin-bottom:2px}
+nav button.on{color:var(--navy)}
+nav button.on .ico{transform:translateY(-1px)}
+/* common */
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--navy);color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+.btn:disabled{opacity:.5}
+.btn.lite{background:var(--bg);color:var(--navy);border:1px solid var(--line)}
+.spk{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font-size:1.05rem;cursor:pointer}
+.spk:active{background:var(--blue);color:#fff}
+.muted{color:var(--gray);font-size:.78rem}
+.err{color:#C0392B;font-size:.85rem;margin-top:8px;text-align:center}
+select,textarea,input[type=search],input[type=text]{font-family:inherit;color:var(--ink)}
+/* translator */
+.row{display:flex;gap:8px;margin-bottom:10px}
+.row select{flex:1;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:.9rem;background:#fff}
+.sq{width:46px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:1.1rem;cursor:pointer}
+.sq.rec{background:#C0392B;color:#fff;border-color:#C0392B}
+#trIn{width:100%;min-height:96px;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:1rem;resize:vertical}
+#trIn:focus,#mapQ:focus{outline:none;border-color:var(--blue)}
+.res{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.res .lbl{font-size:.7rem;font-weight:700;color:var(--gray);letter-spacing:.06em}
+.res .txt{font-size:1.05rem;font-weight:600;margin-top:3px;line-height:1.45;word-break:break-word}
+/* phrasebook */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:.84rem;font-weight:600;color:var(--gray);cursor:pointer}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.ko{font-size:.98rem;font-weight:700}
+.en{font-size:.8rem;color:var(--gray);margin-top:2px}
+.th-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.th{font-size:1.1rem;font-weight:600;line-height:1.4}
+.pron{font-size:.82rem;color:var(--blue);margin-top:2px;font-weight:600}
+/* map & places */
+#mapFrame{width:100%;height:300px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.place{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.place h3{font-size:.95rem;font-weight:700}
+.place p{font-size:.8rem;color:var(--gray);margin-top:3px;line-height:1.45}
+.go{flex:0 0 auto;padding:9px 13px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--navy);font-size:.8rem;font-weight:700;text-decoration:none;white-space:nowrap}
+.sec{font-size:.78rem;font-weight:700;color:var(--gray);letter-spacing:.08em;margin:16px 2px 8px}
+/* ocr */
+#ocrImg{width:100%;border-radius:12px;display:none;margin-top:10px;border:1px solid var(--line)}
+#ocrTxt{width:100%;min-height:80px;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:.95rem;resize:vertical;display:none}
+.prog{height:6px;background:var(--line);border-radius:3px;margin-top:10px;overflow:hidden;display:none}
+.prog div{height:100%;width:0;background:var(--blue);transition:width .3s}
+.hide{display:none}
+</style>
+</head>
+<body>
+<header><h1>태국 여행 도우미<em>번역 · 회화 · 지도 · OCR</em></h1></header>
+
+<main>
+<!-- 번역 -->
+<section id="pg-tr">
+  <div class="card">
+    <div class="row">
+      <select id="trSrc">
+        <option value="ko">한국어 입력</option>
+        <option value="th">태국어 입력</option>
+        <option value="en">영어 입력</option>
+      </select>
+      <button class="sq" id="trMic" title="음성 입력">🎤</button>
+    </div>
+    <textarea id="trIn" placeholder="번역할 문장을 입력하거나 🎤 버튼을 누르고 말하세요"></textarea>
+    <button class="btn" id="trGo" style="margin-top:10px">번역하기</button>
+    <div id="trOut"></div>
+    <div class="err" id="trErr"></div>
+    <p class="muted" style="margin-top:10px">입력 언어를 제외한 두 언어로 동시 번역됩니다. 🔊로 발음을 들을 수 있어요. (인터넷 필요)</p>
+  </div>
+</section>
+
+<!-- 회화 -->
+<section id="pg-ph" class="hide">
+  <input type="search" id="phQ" placeholder="회화 검색 (한/영/태)" style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-size:.95rem;background:#fff;margin-bottom:10px">
+  <div class="chips" id="phChips"></div>
+  <div id="phList"></div>
+</section>
+
+<!-- 카메라 OCR -->
+<section id="pg-ocr" class="hide">
+  <div class="card">
+    <p style="font-size:.9rem;font-weight:700">📷 카메라 문자 인식</p>
+    <p class="muted" style="margin:6px 0 12px">간판·메뉴판을 촬영하면 글자를 인식해 번역합니다. (인터넷 필요, 첫 실행 시 인식 데이터 다운로드로 다소 느릴 수 있어요)</p>
+    <div class="row" style="margin-bottom:10px">
+      <select id="ocrLang">
+        <option value="tha+eng">태국어+영어 인식</option>
+        <option value="eng">영어만 인식</option>
+        <option value="kor">한국어 인식</option>
+      </select>
+    </div>
+    <button class="btn" id="ocrShot">📷 사진 촬영 / 선택</button>
+    <input type="file" id="ocrFile" accept="image/*" capture="environment" class="hide">
+    <img id="ocrImg" alt="">
+    <div class="prog" id="ocrProg"><div></div></div>
+    <textarea id="ocrTxt" placeholder="인식된 텍스트"></textarea>
+    <button class="btn lite hide" id="ocrTr" style="margin-top:10px">↪ 이 텍스트 번역하기</button>
+    <div class="err" id="ocrErr"></div>
+  </div>
+</section>
+
+<!-- 지도/관광 -->
+<section id="pg-map" class="hide">
+  <div class="card">
+    <div class="row" style="margin-bottom:0">
+      <input type="text" id="mapQ" placeholder="장소 검색 (예: 왓아룬, Siam Paragon)" style="flex:1;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:.92rem;background:#fff">
+      <button class="sq" id="mapGo">🔍</button>
+    </div>
+    <p class="muted" style="margin-top:8px">검색하면 Google 지도가 열립니다 (길찾기 가능)</p>
+  </div>
+  <iframe id="mapFrame" src="https://www.openstreetmap.org/export/embed.html?bbox=98.5,5.5,106.0,20.5&layer=mapnik" loading="lazy" title="태국 지도"></iframe>
+  <div class="sec">주요 관광지</div>
+  <div id="spotList"></div>
+</section>
+
+<!-- 맛집 -->
+<section id="pg-food" class="hide">
+  <div class="sec" style="margin-top:2px">꼭 먹어볼 음식</div>
+  <div id="foodList"></div>
+  <div class="sec">맛집 찾기 팁</div>
+  <div class="card">
+    <p style="font-size:.86rem;line-height:1.6">현지 평가는 Google 지도 평점 4.3+ / 리뷰 500개 이상이 무난합니다. 미쉐린 빕구르망 노점도 많으니 "Michelin Bangkok"으로 검색해 보세요. 아래 버튼으로 현재 위치 주변 맛집을 바로 검색할 수 있어요.</p>
+    <button class="btn" style="margin-top:12px" onclick="window.open('https://www.google.com/maps/search/restaurants+near+me','_blank')">📍 내 주변 맛집 검색</button>
+  </div>
+</section>
+</main>
+
+<nav id="nav">
+  <button data-pg="tr" class="on"><span class="ico">🌐</span>번역</button>
+  <button data-pg="ph"><span class="ico">💬</span>회화</button>
+  <button data-pg="ocr"><span class="ico">📷</span>카메라</button>
+  <button data-pg="map"><span class="ico">🗺️</span>지도</button>
+  <button data-pg="food"><span class="ico">🍜</span>맛집</button>
+</nav>
+
+<script>
+/* ---------------- 공통 ---------------- */
+const $=id=>document.getElementById(id);
+const LANGS={ko:{name:'한국어',tts:'ko-KR'},en:{name:'영어',tts:'en-US'},th:{name:'태국어',tts:'th-TH'}};
+function speak(t,lang){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=0.85;
+  const v=speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith(lang.slice(0,2)));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+async function gT(text,sl,tl){
+  const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`);
+  if(!r.ok)throw 0;const j=await r.json();return j[0].map(s=>s[0]).join('');
+}
+async function mmT(text,sl,tl){
+  const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sl}|${tl}`);
+  const j=await r.json();if(j.responseStatus!==200)throw 0;return j.responseData.translatedText;
+}
+const translate=async(t,s,d)=>{try{return await gT(t,s,d);}catch(e){return await mmT(t,s,d);}};
+
+/* ---------------- 탭 전환 ---------------- */
+const pages=['tr','ph','ocr','map','food'];
+$('nav').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  pages.forEach(p=>$('pg-'+p).classList.toggle('hide',p!==b.dataset.pg));
+  window.scrollTo(0,0);
+});
+
+/* ---------------- 번역기 ---------------- */
+async function runTranslate(text){
+  const src=$('trSrc').value,out=$('trOut'),err=$('trErr');
+  err.textContent='';out.innerHTML='';
+  if(!text.trim())return;
+  $('trGo').disabled=true;$('trGo').textContent='번역 중...';
+  try{
+    const tg=Object.keys(LANGS).filter(k=>k!==src);
+    const rs=await Promise.all(tg.map(t=>translate(text,src,t)));
+    // 태국어 결과가 있으면 한글 발음(로마자 경유)도 가져오기
+    const thIdx=tg.indexOf('th');
+    let thPron='';
+    if(thIdx>=0){
+      try{thPron=await translate(rs[thIdx],'th','ko');}catch(e){}
+    }
+    tg.forEach((t,i)=>{
+      const d=document.createElement('div');d.className='res';
+      const pronHTML=(t==='th'&&thPron)?`<div class="pron" style="color:var(--blue);font-size:.8rem;margin-top:4px">🔤 ${thPron}</div>`:'';
+      d.innerHTML=`<div style="flex:1"><div class="lbl">${LANGS[t].name}</div><div class="txt"></div>${pronHTML}</div><button class="spk">🔊</button>`;
+      d.querySelector('.txt').textContent=rs[i];
+      d.querySelector('.spk').onclick=()=>speak(rs[i],LANGS[t].tts);
+      out.appendChild(d);
+    });
+  }catch(e){err.textContent='번역 실패: 인터넷 연결을 확인해 주세요.';}
+  $('trGo').disabled=false;$('trGo').textContent='번역하기';
+}
+$('trGo').onclick=()=>runTranslate($('trIn').value);
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+  const rec=new SR();rec.interimResults=false;
+  $('trMic').onclick=()=>{rec.lang=LANGS[$('trSrc').value].tts;$('trMic').classList.add('rec');rec.start();};
+  rec.onresult=e=>{$('trIn').value=e.results[0][0].transcript;$('trMic').classList.remove('rec');runTranslate($('trIn').value);};
+  rec.onend=()=>$('trMic').classList.remove('rec');
+  rec.onerror=()=>{$('trMic').classList.remove('rec');$('trErr').textContent='음성 인식 실패. 마이크 권한을 확인해 주세요.';};
+}else $('trMic').style.display='none';
+
+/* ---------------- 회화집 ---------------- */
+const PH={
+"인사·기본":[["안녕하세요","Hello","สวัสดีครับ/ค่ะ","싸왓디 크랍/카"],["감사합니다","Thank you","ขอบคุณครับ/ค่ะ","컵쿤 크랍/카"],["죄송합니다","Sorry","ขอโทษครับ/ค่ะ","커톳 크랍/카"],["네 / 아니요","Yes / No","ใช่ / ไม่ใช่","차이 / 마이차이"],["괜찮아요","It's okay","ไม่เป็นไร","마이뻰라이"],["저는 한국 사람이에요","I'm Korean","ผมเป็นคนเกาหลี","폼 뻰 콘 까올리"],["태국어 못해요","I can't speak Thai","พูดภาษาไทยไม่ได้","풋 파싸타이 마이다이"],["천천히 말해 주세요","Please speak slowly","พูดช้าๆ หน่อย","풋 차차 너이"],["영어 할 수 있어요?","Can you speak English?","พูดภาษาอังกฤษได้ไหม","풋 파싸 앙끄릿 다이마이"],["안녕히 가세요","Goodbye","ลาก่อน","라껀"]],
+"쇼핑":[["이거 얼마예요?","How much is this?","อันนี้เท่าไหร่","안니 타오라이"],["너무 비싸요","Too expensive","แพงเกินไป","팽 끈빠이"],["깎아 주세요","Discount, please","ลดหน่อยได้ไหม","롯 너이 다이마이"],["그냥 구경할게요","Just looking","ดูเฉยๆ","두 츠ㅓ이츠ㅓ이"],["이거 살게요","I'll take this","เอาอันนี้","아오 안니"],["카드 돼요?","Can I pay by card?","จ่ายบัตรได้ไหม","짜이 밧 다이마이"],["다른 색 있어요?","Other colors?","มีสีอื่นไหม","미 씨 은 마이"],["입어봐도 돼요?","Can I try it on?","ลองได้ไหม","렁 다이마이"]],
+"식당":[["메뉴 주세요","Menu, please","ขอเมนูหน่อย","커 메누 너이"],["이거 주세요","I'll have this","เอาอันนี้","아오 안니"],["맵지 않게 해주세요","Not spicy","ไม่เผ็ด","마이 펫"],["물 주세요","Water, please","ขอน้ำหน่อย","커 남 너이"],["맛있어요!","Delicious!","อร่อยมาก","아러이 막"],["계산해 주세요","Check, please","เช็คบิลครับ/ค่ะ","첵빈 크랍/카"],["포장해 주세요","Take away","ใส่กล่องกลับบ้าน","싸이 끌렁 끌랍반"],["고수 빼주세요","No cilantro","ไม่ใส่ผักชี","마이 싸이 팍치"]],
+"교통":[["여기로 가주세요","Go here, please","ไปที่นี่","빠이 티니"],["얼마나 걸려요?","How long?","ใช้เวลาเท่าไหร่","차이 웰라 타오라이"],["여기서 세워주세요","Stop here","จอดที่นี่","쩟 티니"],["미터기 켜주세요","Use the meter","เปิดมิเตอร์หน่อย","뻣 미떠 너이"],["공항","Airport","สนามบิน","싸남빈"],["화장실 어디예요?","Where's the toilet?","ห้องน้ำอยู่ที่ไหน","헝남 유 티나이"]],
+"숙소":[["체크인 할게요","Check in","เช็คอินครับ/ค่ะ","첵인 크랍/카"],["와이파이 비번 뭐예요?","WiFi password?","รหัสไวไฟอะไร","라핫 와이파이 아라이"],["에어컨 고장났어요","AC is broken","แอร์เสีย","애 씨아"],["수건 더 주세요","More towels","ขอผ้าเช็ดตัวเพิ่ม","커 파쳇뚜아 픔"]],
+"응급":[["도와주세요!","Help!","ช่วยด้วย","추어이 두어이"],["아파요","I'm sick","ไม่สบาย","마이 싸바이"],["병원 가야 해요","Need a hospital","ต้องไปโรงพยาบาล","떵 빠이 롱파야반"],["경찰 불러주세요","Call the police","เรียกตำรวจหน่อย","리약 땀루엇 너이"],["여권 잃어버렸어요","Lost my passport","ทำพาสปอร์ตหาย","탐 팟뻣 하이"],["약국 어디예요?","Pharmacy?","ร้านขายยาอยู่ที่ไหน","란카이야 유 티나이"]],
+"교회·선교":[["하나님은 당신을 사랑하세요","God loves you","พระเจ้ารักคุณ","프라짜오 락 쿤"],["예수님을 믿으세요","Believe in Jesus","เชื่อในพระเยซู","츠어 나이 프라예수"],["기도해 드릴게요","I will pray for you","ผมจะอธิษฐานให้คุณ","폼 짜 아팃탄 하이 쿤"],["함께 기도해요","Let's pray together","อธิษฐานด้วยกัน","아팃탄 두어이깐"],["교회","Church","โบสถ์","봇"],["예배","Worship service","นมัสการ","나맛싸깐"],["찬양","Praise","สรรเสริญ","싼쓰런"],["성경","Bible","พระคัมภีร์","프라캄피"],["축복합니다","God bless you","ขอพระเจ้าอวยพร","커 프라짜오 우어이펀"],["복음","Gospel","ข่าวประเสริฐ","카우 쁘라쓰ㅓt"],["구원","Salvation","ความรอด","콰암 럿"],["천국","Heaven","สวรรค์","싸완"],["죄","Sin","บาป","밥"],["회개하세요","Please repent","กลับใจเสียใหม่","끌랍짜이 씨아 마이"],["예수님은 길이요 진리요 생명입니다","Jesus is the way, truth and life","พระเยซูทรงเป็นทางนั้น ความจริง และชีวิต","프라예수 쏭 뻰 탕 난 콰암 찡 래 치윗"],["같이 노래해요","Let's sing together","ร้องเพลงด้วยกัน","렁 플렝 두어이깐"],["여기 앉으세요","Please sit here","เชิญนั่งที่นี่","츤 낭 티니"],["할렐루야","Hallelujah","ฮาเลลูยา","할렐루야"],["아멘","Amen","อาเมน","아멘"],["다시 만나요","See you again","แล้วเจอกันใหม่","래우 쯔ㅓ깐 마이"]]
+};
+let phCur=Object.keys(PH)[0];
+function phChips(){
+  $('phChips').innerHTML='';
+  Object.keys(PH).forEach(k=>{
+    const b=document.createElement('button');b.className='chip'+(k===phCur?' on':'');b.textContent=k;
+    b.onclick=()=>{phCur=k;$('phQ').value='';phChips();phRender();};
+    $('phChips').appendChild(b);
+  });
+}
+function phCard(p){
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML=`<div class="ko">${p[0]}</div><div class="en">${p[1]}</div>
+  <div class="th-row"><div><div class="th">${p[2]}</div><div class="pron">${p[3]}</div></div><button class="spk">🔊</button></div>`;
+  d.querySelector('.spk').onclick=()=>speak(p[2],'th-TH');
+  return d;
+}
+function phRender(){
+  const L=$('phList');L.innerHTML='';
+  const q=$('phQ').value.trim().toLowerCase();
+  if(q){
+    let n=0;
+    for(const arr of Object.values(PH))
+      arr.filter(p=>p.some(s=>s.toLowerCase().includes(q))).forEach(p=>{L.appendChild(phCard(p));n++;});
+    if(!n)L.innerHTML='<p class="muted" style="text-align:center;padding:30px 0">검색 결과가 없어요</p>';
+  }else PH[phCur].forEach(p=>L.appendChild(phCard(p)));
+}
+$('phQ').addEventListener('input',phRender);
+phChips();phRender();
+
+/* ---------------- 카메라 OCR ---------------- */
+let tessLoaded=false;
+function loadTess(){
+  return new Promise((res,rej)=>{
+    if(tessLoaded)return res();
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js';
+    s.onload=()=>{tessLoaded=true;res();};s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+$('ocrShot').onclick=()=>$('ocrFile').click();
+$('ocrFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const img=$('ocrImg');img.src=URL.createObjectURL(f);img.style.display='block';
+  $('ocrErr').textContent='';$('ocrTxt').style.display='none';$('ocrTr').classList.add('hide');
+  const prog=$('ocrProg'),bar=prog.firstElementChild;prog.style.display='block';bar.style.width='5%';
+  try{
+    await loadTess();
+    const worker=await Tesseract.createWorker($('ocrLang').value,1,{
+      logger:m=>{if(m.status==='recognizing text')bar.style.width=(10+m.progress*90)+'%';}
+    });
+    const {data}=await worker.recognize(f);
+    await worker.terminate();
+    const txt=data.text.trim();
+    $('ocrTxt').value=txt||'(글자를 인식하지 못했어요. 더 밝고 선명하게 다시 촬영해 보세요)';
+    $('ocrTxt').style.display='block';
+    if(txt)$('ocrTr').classList.remove('hide');
+  }catch(err){$('ocrErr').textContent='인식 실패: 인터넷 연결 후 다시 시도해 주세요.';}
+  prog.style.display='none';bar.style.width='0';
+  e.target.value='';
+};
+$('ocrTr').onclick=()=>{
+  const txt=$('ocrTxt').value.trim();if(!txt)return;
+  const lang=$('ocrLang').value.startsWith('tha')?'th':($('ocrLang').value==='kor'?'ko':'en');
+  $('trSrc').value=lang;$('trIn').value=txt;
+  document.querySelector('nav button[data-pg=tr]').click();
+  runTranslate(txt);
+};
+
+/* ---------------- 지도 / 관광지 ---------------- */
+$('mapGo').onclick=()=>{
+  const q=$('mapQ').value.trim();if(!q)return;
+  window.open('https://www.google.com/maps/search/'+encodeURIComponent(q+' Thailand'),'_blank');
+};
+$('mapQ').addEventListener('keydown',e=>{if(e.key==='Enter')$('mapGo').click();});
+const SPOTS=[
+["방콕 왕궁 & 왓프라깨우","태국 왕실의 상징. 에메랄드 불상이 있는 필수 코스. 반바지·민소매 입장 불가","Grand Palace Bangkok"],
+["왓아룬 (새벽사원)","짜오프라야 강변의 아름다운 탑. 해질녘 강 건너에서 보는 야경이 명물","Wat Arun Bangkok"],
+["왓포 (와불사원)","길이 46m의 거대한 와불상. 전통 타이 마사지의 본산","Wat Pho Bangkok"],
+["카오산 로드","배낭여행자의 거리. 야시장, 길거리 음식, 나이트라이프","Khaosan Road Bangkok"],
+["짜뚜짝 주말시장","세계 최대급 주말시장. 토·일만 운영, 1만 5천여 개 상점","Chatuchak Weekend Market"],
+["아이콘시암 & 아시아티크","강변 대형 쇼핑몰과 야시장. 무료 셔틀보트 운행","ICONSIAM Bangkok"],
+["담넌사두억 수상시장","배 위에서 장 보는 전통 수상시장. 방콕 근교 투어로 인기","Damnoen Saduak Floating Market"],
+["아유타야 역사공원","유네스코 세계유산. 옛 수도의 사원 유적군, 방콕에서 당일치기 가능","Ayutthaya Historical Park"],
+["치앙마이 올드시티","북부의 고도. 사원 300여 개, 선데이마켓, 코끼리 보호소 투어","Chiang Mai Old City"],
+["왓 프라탓 도이수텝","치앙마이가 내려다보이는 산 위의 황금 사원","Wat Phra That Doi Suthep"],
+["파타야","방콕에서 2시간. 해변, 산호섬(꼬란), 워킹스트리트","Pattaya Beach"],
+["푸켓","태국 최대 휴양지. 빠통 비치, 피피섬 투어의 거점","Phuket"]];
+SPOTS.forEach(s=>{
+  const d=document.createElement('div');d.className='card place';
+  d.innerHTML=`<div><h3>${s[0]}</h3><p>${s[1]}</p></div>
+  <a class="go" target="_blank" href="https://www.google.com/maps/search/${encodeURIComponent(s[2])}">지도 ›</a>`;
+  $('spotList').appendChild(d);
+});
+
+/* ---------------- 음식 ---------------- */
+const FOOD=[
+["팟타이 ผัดไทย","태국식 볶음 쌀국수. 국민 음식, 어디서든 실패 없는 선택","Pad Thai near me Thailand"],
+["똠얌꿍 ต้มยำกุ้ง","새우가 든 맵고 신 수프. 태국 대표 요리","Tom Yum Goong restaurant Bangkok"],
+["쏨땀 ส้มตำ","그린파파야 샐러드. 맵기 조절 필수 — '펫 닛너이(조금만 맵게)'","Som Tam restaurant Bangkok"],
+["카오팟 ข้าวผัด","태국식 볶음밥. 게살(카오팟 뿌)이 특히 인기","Khao Pad crab fried rice Bangkok"],
+["카오만까이 ข้าวมันไก่","태국식 치킨라이스. 저렴하고 든든한 한 끼","Khao Man Gai Bangkok"],
+["팟카파오무쌉 ผัดกะเพรา","바질 돼지고기 덮밥+계란후라이. 현지인 최애 점심","Pad Krapow Bangkok"],
+["뿌팟퐁커리 ปูผัดผงกะหรี่","게 카레 볶음. 한국인 인기 1위 메뉴","Poo Pad Pong Curry Bangkok"],
+["망고 스티키라이스 ข้าวเหนียวมะม่วง","망고+찹쌀+코코넛밀크 디저트","Mango Sticky Rice Bangkok"],
+["무양·꼬치구이 หมูปิ้ง","길거리 돼지꼬치. 아침 노점에서 찹쌀밥과 함께","Moo Ping street food Bangkok"],
+["카놈빵 짜오꽈이 등 디저트","로띠, 코코넛 아이스크림 등 야시장 길거리 간식","Roti street food Bangkok"]];
+FOOD.forEach(s=>{
+  const d=document.createElement('div');d.className='card place';
+  d.innerHTML=`<div><h3>${s[0]}</h3><p>${s[1]}</p></div>
+  <a class="go" target="_blank" href="https://www.google.com/maps/search/${encodeURIComponent(s[2])}">맛집 ›</a>`;
+  $('foodList').appendChild(d);
+});
+</script>
+</body>
+</html>
