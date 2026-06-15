@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#16243D">
-<title>태국 여행 도우미</title>
+<title>수원 북누리 아웃리치</title>
 <style>
 :root{
   --navy:#16243D; --navy-2:#23365A; --blue:#3E6BC4;
@@ -192,15 +192,23 @@ async function runTranslate(text){
   try{
     const tg=Object.keys(LANGS).filter(k=>k!==src);
     const rs=await Promise.all(tg.map(t=>translate(text,src,t)));
-    // 태국어 결과가 있으면 한글 발음(로마자 경유)도 가져오기
+    // 태국어 한글 발음: Claude API로 정확한 한국어 발음 표기 가져오기
     const thIdx=tg.indexOf('th');
     let thPron='';
     if(thIdx>=0){
-      try{thPron=await translate(rs[thIdx],'th','ko');}catch(e){}
+      try{
+        const pr=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,
+            messages:[{role:'user',content:`태국어 "${rs[thIdx]}" 의 한국어 발음을 표기해줘. 발음 표기만 출력하고 다른 말은 하지마. 예시: 싸왓디 크랍/카`}]})
+        });
+        const pj=await pr.json();
+        thPron=pj.content?.[0]?.text?.trim()||'';
+      }catch(e){}
     }
     tg.forEach((t,i)=>{
       const d=document.createElement('div');d.className='res';
-      const pronHTML=(t==='th'&&thPron)?`<div class="pron" style="color:var(--blue);font-size:.8rem;margin-top:4px">🔤 ${thPron}</div>`:'';
+      const pronHTML=(t==='th'&&thPron)?`<div style="color:var(--blue);font-size:.82rem;font-weight:600;margin-top:5px">🔤 ${thPron}</div>`:'';
       d.innerHTML=`<div style="flex:1"><div class="lbl">${LANGS[t].name}</div><div class="txt"></div>${pronHTML}</div><button class="spk">🔊</button>`;
       d.querySelector('.txt').textContent=rs[i];
       d.querySelector('.spk').onclick=()=>speak(rs[i],LANGS[t].tts);
